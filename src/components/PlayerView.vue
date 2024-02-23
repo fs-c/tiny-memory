@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import BoardCard from './BoardCard.vue';
-import { type Player } from './Memory.vue';
+import { type Player } from './MemoryGame.vue';
 
 const { isActive, isWinner, player, invertedLayout } = defineProps<{
     isActive: boolean;
@@ -8,6 +9,14 @@ const { isActive, isWinner, player, invertedLayout } = defineProps<{
     player: Player;
     invertedLayout: boolean;
 }>();
+
+const correctCardsWithFakeState = computed(() =>
+    player.correctCards.map((card) => ({
+        ...card,
+        uncovered: false,
+        removed: false,
+    })),
+);
 </script>
 
 <template>
@@ -37,15 +46,23 @@ const { isActive, isWinner, player, invertedLayout } = defineProps<{
             }"
         >
             <div
-                v-for="card of player.correctCards"
-                :key="card.key"
+                v-for="cardWithFakeState of correctCardsWithFakeState"
+                :key="cardWithFakeState.key"
                 class="w-8 md:w-12 relative"
                 :class="{ grayscale: !isActive }"
             >
-                <BoardCard :card="card" :ignore-visibility="true" :skip-preload="true" />
+                <BoardCard
+                    :card-with-state="cardWithFakeState"
+                    :ignore-visibility="true"
+                    :skip-preload="true"
+                />
 
                 <div class="w-8 md:w-12 z-[-1] absolute -right-1 -bottom-1 rotate-6">
-                    <BoardCard :card="card" :ignore-visibility="true" :skip-preload="true" />
+                    <BoardCard
+                        :card-with-state="cardWithFakeState"
+                        :ignore-visibility="true"
+                        :skip-preload="true"
+                    />
                 </div>
             </div>
         </div>

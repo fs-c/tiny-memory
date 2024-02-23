@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import type { Card } from '@/lib/memory';
+import type { CardWithState } from '@/lib/memory';
 import BoardCard from './BoardCard.vue';
 
-const { cards, gameOver } = defineProps<{ cards: Card[]; gameOver: boolean }>();
+const { cardsWithState, gameOver } = defineProps<{
+    cardsWithState: CardWithState[];
+    gameOver: boolean;
+}>();
 </script>
 
 <template>
     <div class="grid grid-cols-6 grid-rows-6 gap-2 px-4">
         <BoardCard
-            v-for="(card, index) in cards"
-            @click="$emit('boardCardClicked', index)"
-            :key="index"
-            :card="card"
+            v-for="cardWithState in cardsWithState"
+            @click="$emit('boardCardClicked', cardWithState.id)"
+            :key="cardWithState.id"
+            :cardWithState="cardWithState"
         />
 
         <button
