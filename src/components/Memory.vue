@@ -43,7 +43,7 @@ const cards = ref<Card[]>(
             },
             sort: Math.random(),
         }))
-        // .sort((a, b) => a.sort - b.sort)
+        .sort((a, b) => a.sort - b.sort)
         .map(({ card }, index) => ({ ...card, asset: `/cards/${card.key}.svg`, index })),
 );
 
