@@ -1,3 +1,11 @@
+<script lang="ts">
+export enum UncoveredState {
+    Covered,
+    InThisMove,
+    InLastMove,
+}
+</script>
+
 <script setup lang="ts">
 import PlayerView from './PlayerView.vue';
 import Board from './Board.vue';
@@ -7,7 +15,7 @@ export interface Card {
     index: number;
     key: string;
     asset: string;
-    uncovered: boolean;
+    uncovered: UncoveredState;
     removed: boolean;
 }
 
@@ -30,12 +38,12 @@ const cards = ref<Card[]>(
             card: {
                 index,
                 key: String(Math.floor(index / 2) + 1),
-                uncovered: false,
+                uncovered: UncoveredState.Covered,
                 removed: false,
             },
             sort: Math.random(),
         }))
-        .sort((a, b) => a.sort - b.sort)
+        // .sort((a, b) => a.sort - b.sort)
         .map(({ card }, index) => ({ ...card, asset: `/cards/${card.key}.svg`, index })),
 );
 
@@ -47,17 +55,17 @@ const boardCardClicked = (index: number) => {
     // length 2 happens when previous was wrong and now the other player still sees the two cards
     if (uncoveredCards.value.length === 0 || uncoveredCards.value.length === 2) {
         for (const uncoveredCard of uncoveredCards.value) {
-            cards.value[uncoveredCard.index].uncovered = false;
+            cards.value[uncoveredCard.index].uncovered = UncoveredState.Covered;
         }
 
-        cards.value[index].uncovered = true;
+        cards.value[index].uncovered = UncoveredState.InThisMove;
     } else if (uncoveredCards.value.length === 1) {
         const previous = uncoveredCards.value[0];
         if (previous.index === index) {
             return;
         }
 
-        cards.value[index].uncovered = true;
+        cards.value[index].uncovered = UncoveredState.InThisMove;
 
         if (previous.key === cards.value[index].key) {
             cards.value[index].removed = true;
@@ -66,6 +74,10 @@ const boardCardClicked = (index: number) => {
             players.value[activePlayer.value].correctCards.push(previous);
         } else {
             activePlayer.value = activePlayer.value === 0 ? 1 : 0;
+
+            for (const uncoveredCard of uncoveredCards.value) {
+                cards.value[uncoveredCard.index].uncovered = UncoveredState.InLastMove;
+            }
         }
     }
 };
