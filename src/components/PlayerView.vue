@@ -2,8 +2,9 @@
 import BoardCard from './BoardCard.vue';
 import { type Player } from './Memory.vue';
 
-const { isActive, player, invertedLayout } = defineProps<{
+const { isActive, isWinner, player, invertedLayout } = defineProps<{
     isActive: boolean;
+    isWinner: boolean;
     player: Player;
     invertedLayout: boolean;
 }>();
@@ -11,7 +12,7 @@ const { isActive, player, invertedLayout } = defineProps<{
 
 <template>
     <div
-        class="flex gap-2 p-4 h-full"
+        class="flex gap-3 p-4 h-full"
         :class="{
             'flex-col-reverse items-start': !invertedLayout,
             'flex-col items-end': invertedLayout,
@@ -22,25 +23,29 @@ const { isActive, player, invertedLayout } = defineProps<{
             :class="{
                 'text-gray-100 underline underline-offset-4': isActive,
                 'text-gray-400': !isActive,
+                'text-yellow-500': isWinner,
             }"
         >
             {{ player.name }}
         </div>
 
         <div
-            class="flex flex-wrap gap-4"
-            :class="{ 'flex-row': !invertedLayout, 'flex-row-reverse': invertedLayout }"
+            class="flex gap-4"
+            :class="{
+                'flex-row flex-wrap-reverse': !invertedLayout,
+                'flex-row-reverse flex-wrap': invertedLayout,
+            }"
         >
             <div
                 v-for="card of player.correctCards"
                 :key="card.key"
-                class="w-8 h-8 relative"
+                class="w-8 md:w-12 relative"
                 :class="{ grayscale: !isActive }"
             >
-                <BoardCard :card="{ ...card, removed: false }" />
+                <BoardCard :card="card" :ignore-visibility="true" :skip-preload="true" />
 
-                <div class="w-8 h-8 z-[-1] absolute -right-1 -bottom-1 rotate-6">
-                    <BoardCard :card="{ ...card, removed: false }" />
+                <div class="w-8 md:w-12 z-[-1] absolute -right-1 -bottom-1 rotate-6">
+                    <BoardCard :card="card" :ignore-visibility="true" :skip-preload="true" />
                 </div>
             </div>
         </div>

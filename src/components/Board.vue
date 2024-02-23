@@ -1,17 +1,8 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import type { Card } from '@/lib/memory';
 import BoardCard from './BoardCard.vue';
-import type { Card } from './Memory.vue';
 
-const { cards } = defineProps<{ cards: Card[] }>();
-
-onMounted(() => {
-    // preload all assets, regular link preload doesn't appear to work in this context
-    for (const card of cards) {
-        const image = new Image();
-        image.src = card.asset;
-    }
-});
+const { cards, gameOver } = defineProps<{ cards: Card[]; gameOver: boolean }>();
 </script>
 
 <template>
@@ -22,5 +13,13 @@ onMounted(() => {
             :key="index"
             :card="card"
         />
+
+        <button
+            v-if="gameOver"
+            @click="$emit('gameRestart')"
+            class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-2 rounded-md bg-yellow-600 text-gray-100 font-bold text-lg"
+        >
+            Restart
+        </button>
     </div>
 </template>
