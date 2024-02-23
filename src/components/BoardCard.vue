@@ -11,7 +11,7 @@ const { card } = defineProps<{ card: Card }>();
             class="h-full text-xl font-bold text-gray-900 flex justify-center items-center"
         >
             <img :src="card.asset" :alt="card.key" class="object-cover w-full h-full" />
-            <link rel="preload" as="image" :href="card.asset" />
+            <link rel="prefetch" as="image" :href="card.asset" />
         </div>
     </div>
     <div v-else></div>

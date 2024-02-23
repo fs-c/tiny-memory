@@ -11,14 +11,14 @@ const { isActive, player, invertedLayout } = defineProps<{
 
 <template>
     <div
-        class="flex gap-2 px-4 py-8"
+        class="flex gap-2 p-4 h-full"
         :class="{
-            'flex-col': !invertedLayout,
-            'flex-col-reverse': invertedLayout,
+            'flex-col-reverse items-start': !invertedLayout,
+            'flex-col items-end': invertedLayout,
         }"
     >
         <div
-            class="font-bold text-lg"
+            class="font-bold text-lg w-max"
             :class="{
                 'text-gray-100 underline underline-offset-4': isActive,
                 'text-gray-400': !isActive,
@@ -36,7 +36,7 @@ const { isActive, player, invertedLayout } = defineProps<{
             >
                 <BoardCard :card="{ ...card, removed: false, uncovered: true }" />
 
-                <div class="w-8 h-8 z-[-1] absolute -right-1 -bottom-1">
+                <div class="w-8 h-8 z-[-1] absolute -right-1 -bottom-1 rotate-6">
                     <BoardCard :card="{ ...card, removed: false, uncovered: true }" />
                 </div>
             </div>

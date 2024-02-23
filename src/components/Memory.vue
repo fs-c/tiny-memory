@@ -72,7 +72,7 @@ const boardCardClicked = (index: number) => {
 </script>
 
 <template>
-    <main class="flex flex-col gap-8 justify-between h-screen">
+    <main class="flex flex-col justify-center h-screen">
         <PlayerView :is-active="activePlayer === 0" :player="players[0]" :inverted-layout="false" />
 
         <Board :cards="cards" @boardCardClicked="boardCardClicked($event)" />
