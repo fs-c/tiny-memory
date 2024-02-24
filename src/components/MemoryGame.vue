@@ -4,13 +4,11 @@ import Board from './Board.vue';
 import {
     type Card,
     createRandomMemoryBoard,
-    createOrderedMemoryBoard,
     cardIsUncovered,
     type CardWithState,
 } from '@/lib/memory';
-import { computed, inject, ref } from 'vue';
+import { computed, ref } from 'vue';
 import confetti from 'canvas-confetti';
-import { CHEAT_MODE_ENABLED_KEY } from '@/App.vue';
 
 export interface Player {
     name: string;
@@ -30,16 +28,10 @@ const winningPlayerIndex = computed(() =>
     players.value[0].correctCards.length > players.value[1].correctCards.length ? 0 : 1,
 );
 
-const cheatModeEnabled = inject(CHEAT_MODE_ENABLED_KEY);
-
 const uncoveredCardIds = ref<Set<string>>(new Set());
 const removedCardIds = ref<Set<string>>(new Set());
 
-const cards = computed(() =>
-    cheatModeEnabled?.value === true
-        ? createOrderedMemoryBoard(numberOfCards)
-        : createRandomMemoryBoard(numberOfCards),
-);
+const cards = ref(createRandomMemoryBoard(numberOfCards));
 
 const cardsWithState = computed<CardWithState[]>(() =>
     cards.value.map((card) => ({
@@ -49,25 +41,25 @@ const cardsWithState = computed<CardWithState[]>(() =>
     })),
 );
 
-const uncoveredCards = computed(() => cardsWithState.value.filter(cardIsUncovered));
-
 const gameOver = ref(false);
 
 const onBoardCardClicked = async (cardId: Card['id']): Promise<void> => {
+    const uncoveredCards = cardsWithState.value.filter(cardIsUncovered);
+
     // length 2 happens when previous was wrong and now the other player still sees the two cards
-    if (uncoveredCards.value.length === 0 || uncoveredCards.value.length === 2) {
+    if (uncoveredCards.length === 0 || uncoveredCards.length === 2) {
         // this is the first move
 
         // for the length 2 special case, first clear the previous uncovered state
-        for (const uncoveredCard of uncoveredCards.value) {
+        for (const uncoveredCard of uncoveredCards) {
             uncoveredCardIds.value.delete(uncoveredCard.id);
         }
 
         uncoveredCardIds.value.add(cardId);
-    } else if (uncoveredCards.value.length === 1) {
+    } else if (uncoveredCards.length === 1) {
         // this is the second move
 
-        const previousCard = uncoveredCards.value[0];
+        const previousCard = uncoveredCards[0];
         if (previousCard.id === cardId) {
             // if the same card is clicked twice, pretend nothing happened
             return;
@@ -81,6 +73,7 @@ const onBoardCardClicked = async (cardId: Card['id']): Promise<void> => {
         }
 
         if (previousCard.key === currentCard.key) {
+            // we have a mtch
             removedCardIds.value.add(currentCard.id);
             removedCardIds.value.add(previousCard.id);
 
@@ -89,11 +82,13 @@ const onBoardCardClicked = async (cardId: Card['id']): Promise<void> => {
             const totalUncovered =
                 players.value[0].correctCards.length + players.value[1].correctCards.length;
             if (totalUncovered * 2 === cards.value.length) {
+                // all cards have been uncovered
                 gameOver.value = true;
                 activePlayerIndex.value = winningPlayerIndex.value;
                 confetti();
             }
         } else {
+            // wrong second move, leave the cards uncovered for the next move by the other player
             activePlayerIndex.value = activePlayerIndex.value === 0 ? 1 : 0;
         }
     }
@@ -103,17 +98,19 @@ const onGameRestart = (): void => {
     players.value[0].correctCards = [];
     players.value[1].correctCards = [];
 
-    // don't reset active player, this way the previous winner gets to go first this round
+    // don't reset active player, this way the previous winner gets to go first now
 
     uncoveredCardIds.value = new Set();
     removedCardIds.value = new Set();
+
+    cards.value = createRandomMemoryBoard(numberOfCards);
 
     gameOver.value = false;
 };
 </script>
 
 <template>
-    <main class="flex flex-col justify-center h-screen max-w-screen-md mx-auto">
+    <main class="flex flex-col justify-center h-screen max-w-xl mx-auto">
         <PlayerView
             :is-winner="gameOver && winningPlayerIndex === 0"
             :is-active="activePlayerIndex === 0"
