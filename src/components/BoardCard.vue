@@ -8,22 +8,45 @@ const props = defineProps<{
 
 const assetLink = computed(() => getAssetLinkForCard(props.cardWithState));
 </script>
-
 <template>
-    <div v-if="!cardWithState.removed" class="outer-wrapper aspect-square">
-        <div class="inner-wrapper h-full" :class="{ uncovered: cardWithState.uncovered === true }">
-            <div class="front bg-zinc-700 rounded-md"></div>
+    <div class="relative aspect-square">
+        <Transition name="removed-transition" mode="out-in">
+            <div v-if="!cardWithState.removed" class="card w-full h-full absolute">
+                <div
+                    class="inner-wrapper h-full"
+                    :class="{ uncovered: cardWithState.uncovered === true }"
+                >
+                    <div class="front bg-zinc-700 rounded-md"></div>
 
-            <div class="back rounded-md overflow-hidden">
-                <img :src="assetLink" :alt="cardWithState.key" class="object-cover w-full h-full" />
+                    <div class="back rounded-md overflow-hidden">
+                        <img
+                            :src="assetLink"
+                            :alt="cardWithState.key"
+                            class="object-cover w-full h-full"
+                        />
+                    </div>
+                </div>
             </div>
-        </div>
+        </Transition>
+        <div class="bg-zinc-700 w-full h-full opacity-10 rounded-md absolute"></div>
     </div>
-    <div v-else class="aspect-square bg-zinc-700 opacity-10 rounded-md"></div>
 </template>
 
 <style scoped>
-.outer-wrapper {
+.removed-transition-enter-active,
+.removed-transition-leave-active {
+    transition: all 150ms ease-out;
+}
+
+.removed-transition-enter-from {
+    opacity: 100;
+}
+
+.removed-transition-leave-to {
+    opacity: 0;
+}
+
+.card {
     perspective: 1000px;
 }
 
@@ -31,6 +54,7 @@ const assetLink = computed(() => getAssetLinkForCard(props.cardWithState));
     position: relative;
     transform-style: preserve-3d;
     transition: all 250ms ease-in-out;
+    transition-delay: 0ms;
 }
 
 .inner-wrapper.uncovered {

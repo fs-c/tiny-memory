@@ -72,7 +72,7 @@ const correctCardsWithAsset = computed(() =>
 <style scoped>
 .card-list-move,
 .card-list-enter-active {
-    transition: all 100ms ease-out;
+    transition: all 150ms ease-out;
     transform: scale(1);
 }
 
@@ -82,7 +82,7 @@ const correctCardsWithAsset = computed(() =>
 
 .card-list-enter-active .rotated-card {
     transition: all 250ms ease-out;
-    transition-delay: 150ms;
+    transition-delay: 175ms;
     right: -0.25rem;
     bottom: -0.25rem;
     transform: rotate(6deg);

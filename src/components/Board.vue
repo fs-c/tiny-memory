@@ -39,7 +39,7 @@ watch(props, (newProps) => {
             v-for="cardWithState in sortedCardsWithState"
             @click="$emit('boardCardClicked', cardWithState.id)"
             :key="cardWithState.id"
-            :cardWithState="cardWithState"
+            :card-with-state="cardWithState"
         />
 
         <button
