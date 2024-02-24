@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import type { CardWithState } from '@/lib/memory';
 import BoardCard from './BoardCard.vue';
-import { computed, inject, ref } from 'vue';
-import { CHEAT_MODE_ENABLED_KEY } from '@/App.vue';
+import { computed } from 'vue';
+import { useCheatMode } from '@/stores/cheat-mode.store';
 
 const props = defineProps<{
     cardsWithState: CardWithState[];
     gameOver: boolean;
 }>();
 
-const cheatModeEnabled = inject(CHEAT_MODE_ENABLED_KEY, ref(false));
+const { cheatMode } = useCheatMode();
 
 const sortedCardsWithState = computed(() =>
-    cheatModeEnabled?.value === true
+    cheatMode.value
         ? [...props.cardsWithState].sort((a, b) => a.key.localeCompare(b.key))
         : props.cardsWithState,
 );

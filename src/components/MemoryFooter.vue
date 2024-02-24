@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { CHEAT_MODE_ENABLED_KEY } from '@/App.vue';
-import { computed, inject } from 'vue';
+import { useCheatMode } from '@/stores/cheat-mode.store';
+import { computed } from 'vue';
 
-const cheatModeEnabled = inject(CHEAT_MODE_ENABLED_KEY);
+const { cheatMode, toggleCheatMode } = useCheatMode();
 
 const cheatModeText = computed(
-    () => `${cheatModeEnabled?.value === true ? 'Disable' : 'Enable'} cheat mode.`,
+    () => `${cheatMode.value === true ? 'Disable' : 'Enable'} cheat mode.`,
 );
 </script>
 
@@ -22,7 +22,7 @@ const cheatModeText = computed(
             <a href="https://github.com/fs-c/tiny-memory" class="underline">github</a>.
         </p>
 
-        <button class="text-base underline text-gray-500" @click="$emit('toggleCheatMode')">
+        <button class="text-base underline text-gray-500" @click="toggleCheatMode()">
             {{ cheatModeText }}
         </button>
     </footer>
