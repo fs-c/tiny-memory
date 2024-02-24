@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type { CardWithState } from '@/lib/memory';
 import BoardCard from './BoardCard.vue';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useCheatMode } from '@/stores/cheat-mode.store';
+import confetti from 'canvas-confetti';
 
 const props = defineProps<{
     cardsWithState: CardWithState[];
     gameOver: boolean;
+    width: number;
+    height: number;
 }>();
 
 const { cheatMode } = useCheatMode();
@@ -16,10 +19,22 @@ const sortedCardsWithState = computed(() =>
         ? [...props.cardsWithState].sort((a, b) => a.key.localeCompare(b.key))
         : props.cardsWithState,
 );
+
+watch(props, (newProps) => {
+    if (newProps.gameOver) {
+        confetti();
+    }
+});
 </script>
 
 <template>
-    <div class="grid grid-cols-6 grid-rows-6 gap-2 px-4 relative">
+    <div
+        class="grid gap-2 px-4 relative"
+        :style="{
+            'grid-template-columns': `repeat(${width}, minmax(0, 1fr))`,
+            'grid-template-rows': `repeat(${height}, minmax(0, 1fr))`,
+        }"
+    >
         <BoardCard
             v-for="cardWithState in sortedCardsWithState"
             @click="$emit('boardCardClicked', cardWithState.id)"

@@ -8,7 +8,6 @@ import {
     type CardWithState,
 } from '@/lib/memory';
 import { computed, ref } from 'vue';
-import confetti from 'canvas-confetti';
 
 export interface Player {
     name: string;
@@ -85,7 +84,6 @@ const onBoardCardClicked = async (cardId: Card['id']): Promise<void> => {
                 // all cards have been uncovered
                 gameOver.value = true;
                 activePlayerIndex.value = winningPlayerIndex.value;
-                confetti();
             }
         } else {
             // wrong second move, leave the cards uncovered for the next move by the other player
@@ -119,8 +117,10 @@ const onGameRestart = (): void => {
         />
 
         <Board
-            :cardsWithState="cardsWithState"
+            :cards-with-state="cardsWithState"
             :game-over="gameOver"
+            :width="boardWidth"
+            :height="boardHeight"
             @board-card-clicked="onBoardCardClicked($event)"
             @game-restart="onGameRestart"
         />
