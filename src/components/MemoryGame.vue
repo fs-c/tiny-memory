@@ -8,6 +8,7 @@ import {
     type CardWithState,
 } from '@/lib/memory';
 import { computed, ref } from 'vue';
+import { sleep } from '@/lib/util';
 
 export interface Player {
     name: string;
@@ -72,7 +73,9 @@ const onBoardCardClicked = async (cardId: Card['id']): Promise<void> => {
         }
 
         if (previousCard.key === currentCard.key) {
-            // we have a mtch
+            await sleep(500);
+
+            // we have a match
             removedCardIds.value.add(currentCard.id);
             removedCardIds.value.add(previousCard.id);
 
