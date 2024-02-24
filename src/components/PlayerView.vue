@@ -1,21 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import BoardCard from './BoardCard.vue';
 import { type Player } from './MemoryGame.vue';
+import { getAssetLinkForCard } from '@/lib/memory';
 
-const { isActive, isWinner, player, invertedLayout } = defineProps<{
+const props = defineProps<{
     isActive: boolean;
     isWinner: boolean;
     player: Player;
     invertedLayout: boolean;
 }>();
 
-const correctCardsWithFakeState = computed(() =>
-    player.correctCards.map((card) => ({
-        ...card,
-        uncovered: false,
-        removed: false,
-    })),
+const correctCardsWithAsset = computed(() =>
+    props.player.correctCards.map((card) => ({ card, assetLink: getAssetLinkForCard(card) })),
 );
 </script>
 
@@ -43,28 +39,58 @@ const correctCardsWithFakeState = computed(() =>
             :class="{
                 'flex-row flex-wrap-reverse': !invertedLayout,
                 'flex-row-reverse flex-wrap': invertedLayout,
+                grayscale: !isActive,
             }"
         >
-            <div
-                v-for="cardWithFakeState of correctCardsWithFakeState"
-                :key="cardWithFakeState.key"
-                class="w-8 md:w-12 relative"
-                :class="{ grayscale: !isActive }"
-            >
-                <BoardCard
-                    :card-with-state="cardWithFakeState"
-                    :ignore-visibility="true"
-                    :skip-preload="true"
-                />
-
-                <div class="w-8 md:w-12 z-[-1] absolute -right-1 -bottom-1 rotate-6">
-                    <BoardCard
-                        :card-with-state="cardWithFakeState"
-                        :ignore-visibility="true"
-                        :skip-preload="true"
+            <TransitionGroup name="card-list">
+                <div
+                    v-for="{ card, assetLink } of correctCardsWithAsset"
+                    :key="card.id"
+                    class="w-8 md:w-12 aspect-square relative"
+                >
+                    <img
+                        :src="assetLink"
+                        :alt="card.key"
+                        class="rounded-md object-cover w-full h-full"
                     />
+
+                    <div
+                        class="rotated-card absolute w-full h-full z-[-1] -right-1 -bottom-1 rotate-6"
+                    >
+                        <img
+                            :src="assetLink"
+                            :alt="card.key"
+                            class="rounded-md object-cover w-full h-full"
+                        />
+                    </div>
                 </div>
-            </div>
+            </TransitionGroup>
         </div>
     </div>
 </template>
+
+<style scoped>
+.card-list-move,
+.card-list-enter-active {
+    transition: all 100ms ease-out;
+    transform: scale(1);
+}
+
+.card-list-enter-from {
+    transform: scale(0);
+}
+
+.card-list-enter-active .rotated-card {
+    transition: all 250ms ease-out;
+    transition-delay: 150ms;
+    right: -0.25rem;
+    bottom: -0.25rem;
+    transform: rotate(6deg);
+}
+
+.card-list-enter-from .rotated-card {
+    right: 0;
+    bottom: 0;
+    transform: rotate(0);
+}
+</style>

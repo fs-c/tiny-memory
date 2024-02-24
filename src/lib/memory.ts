@@ -18,6 +18,10 @@ export function isCardWithState(card: Card): card is CardWithState {
     return casted.uncovered !== undefined && casted.uncovered !== undefined;
 }
 
+export function getAssetLinkForCard(card: Card): string {
+    return `/cards/${card.key}.svg`;
+}
+
 export function createOrderedMemoryBoard(numberOfCards: number): Card[] {
     return new Array(numberOfCards)
         .fill(0)
