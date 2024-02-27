@@ -8,16 +8,19 @@ import {
     type CardWithState,
 } from '@/lib/memory';
 import { computed, ref } from 'vue';
-import { sleep } from '@/lib/util';
+import { sleep, useRefreshable } from '@/lib/util';
+import { useSettings } from '@/stores/settings.store';
 
 export interface Player {
     name: string;
     correctCards: Card[];
 }
 
-const boardWidth = 6;
-const boardHeight = 6;
-const numberOfCards = boardWidth * boardHeight;
+const { settings } = useSettings();
+
+const numberOfCards = computed(
+    () => settings.boardDimensions.width * settings.boardDimensions.height,
+);
 
 const players = ref<[Player, Player]>([
     { name: 'Player A', correctCards: [] },
@@ -31,7 +34,9 @@ const winningPlayerIndex = computed(() =>
 const uncoveredCardIds = ref<Set<string>>(new Set());
 const removedCardIds = ref<Set<string>>(new Set());
 
-const cards = ref(createRandomMemoryBoard(numberOfCards));
+const { value: cards, refresh: refreshCards } = useRefreshable(() =>
+    createRandomMemoryBoard(numberOfCards.value),
+);
 
 const cardsWithState = computed<CardWithState[]>(() =>
     cards.value.map((card) => ({
@@ -104,7 +109,7 @@ const onGameRestart = (): void => {
     uncoveredCardIds.value = new Set();
     removedCardIds.value = new Set();
 
-    cards.value = createRandomMemoryBoard(numberOfCards);
+    refreshCards();
 
     gameOver.value = false;
 };
@@ -122,8 +127,8 @@ const onGameRestart = (): void => {
         <Board
             :cards-with-state="cardsWithState"
             :game-over="gameOver"
-            :width="boardWidth"
-            :height="boardHeight"
+            :width="settings.boardDimensions.width"
+            :height="settings.boardDimensions.height"
             @board-card-clicked="onBoardCardClicked($event)"
             @game-restart="onGameRestart"
         />

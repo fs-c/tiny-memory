@@ -2,8 +2,8 @@
 import type { CardWithState } from '@/lib/memory';
 import BoardCard from './BoardCard.vue';
 import { computed, watch } from 'vue';
-import { useCheatMode } from '@/stores/cheat-mode.store';
 import confetti from 'canvas-confetti';
+import { useSettings } from '@/stores/settings.store';
 
 const props = defineProps<{
     cardsWithState: CardWithState[];
@@ -12,10 +12,10 @@ const props = defineProps<{
     height: number;
 }>();
 
-const { cheatMode } = useCheatMode();
+const { settings } = useSettings();
 
 const sortedCardsWithState = computed(() =>
-    cheatMode.value
+    settings.cheatMode
         ? [...props.cardsWithState].sort((a, b) => a.key.localeCompare(b.key))
         : props.cardsWithState,
 );

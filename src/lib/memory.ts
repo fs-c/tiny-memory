@@ -1,6 +1,5 @@
 export interface Card {
     id: string;
-    order: number;
     key: string;
 }
 
@@ -13,20 +12,14 @@ export function cardIsUncovered(card: CardWithState): boolean {
     return card.uncovered && !card.removed;
 }
 
-export function isCardWithState(card: Card): card is CardWithState {
-    const casted = card as CardWithState;
-    return casted.uncovered !== undefined && casted.uncovered !== undefined;
-}
-
 export function getAssetLinkForCard(card: Card): string {
     return `/cards/${card.key}.svg`;
 }
 
-export function createOrderedMemoryBoard(numberOfCards: number): Card[] {
+function createOrderedMemoryBoard(numberOfCards: number): Card[] {
     return new Array(numberOfCards)
         .fill(0)
         .map((e, index) => ({
-            order: index,
             id: crypto.randomUUID(),
             key: String(Math.floor(index / 2) + 1),
         }));
@@ -39,5 +32,5 @@ export function createRandomMemoryBoard(numberOfCards: number): Card[] {
             sort: Math.random(),
         }))
         .sort((a, b) => a.sort - b.sort)
-        .map(({ card }, index) => ({ ...card, order: index }));
+        .map(({ card }) => card);
 }
