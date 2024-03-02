@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useSettings } from '@/stores/settings.store';
 import { computed } from 'vue';
+import XMark from './lib/icons/XMark.vue';
+import NumberInput from './lib/NumberInput.vue';
 
 const { settings, toggleCheatMode, setBoardDimensions } = useSettings();
 
@@ -8,19 +10,25 @@ const cheatModeText = computed(
     () => `${settings.cheatMode === true ? 'Disable' : 'Enable'} cheat mode.`,
 );
 
-const normalizeDimensionValue = (value: number): number =>
-    isNaN(value) ? 2 : value > 10 ? 10 : value < 2 ? 2 : value;
+const onWidthPlusOne = () => {
+    setBoardDimensions({ ...settings.boardDimensions, width: settings.boardDimensions.width + 1 });
+};
 
-const onChangeDimensions = (value: number, widthOrHeight: 'width' | 'height') => {
-    // todo: needs proper normalization/binding, also enforce even number of cards and
-    //       maybe limit the allowed difference between height and width
-
-    const currentDimensions = { ...settings.boardDimensions };
-
-    const normalizedValue = normalizeDimensionValue(value);
+const onHeightPlusOne = () => {
     setBoardDimensions({
-        ...currentDimensions,
-        [widthOrHeight]: normalizedValue,
+        ...settings.boardDimensions,
+        height: settings.boardDimensions.height + 1,
+    });
+};
+
+const onWidthMinusOne = () => {
+    setBoardDimensions({ ...settings.boardDimensions, width: settings.boardDimensions.width - 1 });
+};
+
+const onHeightMinusOne = () => {
+    setBoardDimensions({
+        ...settings.boardDimensions,
+        height: settings.boardDimensions.height - 1,
     });
 };
 </script>
@@ -28,24 +36,28 @@ const onChangeDimensions = (value: number, widthOrHeight: 'width' | 'height') =>
 <template>
     <div class="bg-zinc-800">
         <div class="px-4 py-8 mx-auto max-w-xl flex flex-col items-start gap-4">
-            <div class="flex flex-row gap-4 justify-center">
-                <label>Board Dimensions</label>
+            <div class="flex flex-col gap-2">
+                <h2>Board Dimensions</h2>
 
-                <input
-                    :value="settings.boardDimensions.width"
-                    @input="onChangeDimensions($event, 'width')"
-                    type="number"
-                    class="mt-1 block w-full rounded-md bg-zinc-700 border-transparent focus:border-gray-500 focus:bg-zinc-800 focus:ring-0"
-                    placeholder=""
-                />
+                <div class="flex flex-row gap-2 items-center">
+                    <NumberInput
+                        :min="3"
+                        :max="10"
+                        :value="settings.boardDimensions.width"
+                        @plus-one="onWidthPlusOne"
+                        @minus-one="onWidthMinusOne"
+                    />
 
-                <input
-                    :value="settings.boardDimensions.height"
-                    @input="onChangeDimensions($event, 'height')"
-                    type="number"
-                    class="mt-1 block w-full rounded-md bg-zinc-700 border-transparent focus:border-gray-500 focus:bg-zinc-800 focus:ring-0"
-                    placeholder=""
-                />
+                    <XMark />
+
+                    <NumberInput
+                        :min="3"
+                        :max="10"
+                        :value="settings.boardDimensions.height"
+                        @plus-one="onHeightPlusOne"
+                        @minus-one="onHeightMinusOne"
+                    />
+                </div>
             </div>
 
             <button class="text-base underline text-gray-500" @click="toggleCheatMode()">
